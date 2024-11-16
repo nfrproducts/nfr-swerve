@@ -14,7 +14,7 @@ Ayrıca, YAGSL kütüphanelerini incelemek için aşağıdaki bağlantılara gö
 1. **Repository'i Klonlama**
 
    ```bash
-   git clone https://github.com/tunapro1234/nf-swerve-lib.git
+   git clone https://github.com/nfrproducts/nfr-swerve.git
    cd nf-swerve-lib
    ```
 
