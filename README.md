@@ -1,115 +1,79 @@
-# Yet Another Generic Swerve Library (YAGSL) Example project
+# YAGSL Example Fork with NFR Swerve Configurations
 
-YAGSL is intended to be an easy implementation of a generic swerve drive that should work for most
-square swerve drives. The project is documented
-on [here](https://github.com/BroncBotz3481/YAGSL/wiki). The JSON documentation can also be
-found [here](docs/START.md)
+Bu repository, NFR tarafından üretilmiş swerve sürüş modüllerinin ayar dosyalarını içermektedir. Bu, kullanıcılara YAGSL altyapısını kullanarak kendi swerve sistemlerini kolayca kurma imkânı sunar. Bu README, konfigürasyon dosyalarını nasıl kullanacağınızı ve projelerinize nasıl entegre edeceğinizi adım adım açıklamaktadır.
 
-This example is intended to be a starting place on how to use YAGSL. By no means is this intended to
-be the base of your robot project. YAGSL provides an easy way to generate a SwerveDrive which can be
-used in both TimedRobot and Command-Based Robot templates.
+Kendi robotunuzu yapılandırmaya başlamak için lütfen [YAGSL Configuration Guide](https://yagsl.gitbook.io/yagsl/configuring-yagsl/configuration#json-files) adresine gidin ve oradaki adımları izleyin.
 
+Ayrıca, YAGSL kütüphanelerini incelemek için aşağıdaki bağlantılara göz atabilirsiniz:
 
-# Overview
+- [YAGSL Repository](https://github.com/BroncBotz3481/YAGSL)
+- [YAGSL Example Repository](https://github.com/BroncBotz3481/YAGSL-Example)
 
-### Installation
+## Kurulum Adımları
 
-Vendor URL:
+1. **Repository'i Klonlama**
 
-```
-https://broncbotz3481.github.io/YAGSL-Lib/yagsl/yagsl.json
-```
+   ```bash
+   git clone https://github.com/tunapro1234/nf-swerve-lib.git
+   cd nf-swerve-lib
+   ```
 
-[Javadocs here](https://broncbotz3481.github.io/YAGSL/)  
-[Library here](https://github.com/BroncBotz3481/YAGSL/)  
-[Code here](https://github.com/BroncBotz3481/YAGSL/tree/main/swervelib)  
-[WIKI](https://github.com/BroncBotz3481/YAGSL/wiki)  
-[Config Generation](https://broncbotz3481.github.io/YAGSL-Example/)
+   Alternatif olarak, repository'i ZIP dosyası olarak da indirebilirsiniz. Bunun için GitHub sayfasından "Code" butonuna tıklayıp "Download ZIP" seçeneğini kullanabilirsiniz.
 
-# Create an issue if there is any errors you find!
+2. **Gerekli Bağımlılıkları Yükleme**
 
-We will be actively montoring this and fix any issues when we can!
+   Bu projeyi kullanabilmek için bazı bağımlılıkların kurulu olduğundan emin olun. Bağımlılıkları aşağıdaki şekilde kurabilirsiniz:
 
-## Development
+   ```bash
+   ./gradlew vendordep
+   ```
 
-* Development happens here on `YAGSL-Example`. `YAGSL` and `YAGSL-Lib` are updated on a nightly
-  basis.
+   Linux kullanmayan kullanıcılar, WPILib VSCode eklentisini kullanarak vendordep ekleyebilirler. Bunun için "WPILib Command Palette" (Ctrl+Shift+P veya Cmd+Shift+P) üzerinden "Manage Vendor Libraries" seçeneğini seçin ve ardından "Install new libraries (online)" veya "Install new libraries (offline)" seçeneğini kullanarak gerekli vendordep dosyalarını ekleyin. Online seçeneğinde bağlantı sorulacaktır, offline olarak eklemek için gerekli `.json` dosyasını yerel olarak indirip yükleyebilirsiniz.
 
-# Support our developers!
-<a href='https://ko-fi.com/yagsl' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Robot at ko-fi.com'></a>
+   Genellikle, bu JSON dosyalarını ekledikten sonra ek bir işlem yapmanıza gerek yoktur; çünkü Gradle, projenizi derlerken bu dosyalarda belirtilen kütüphaneleri otomatik olarak indirir ve projenize dahil eder. Ancak, projenizi ilk kez derlerken veya yeni bir JSON dosyası eklediğinizde, **bilgisayarınızın internet bağlantısının aktif olduğundan emin olun**. Bu, Gradle'ın gerekli kütüphaneleri indirip projenize entegre edebilmesi için gereklidir.
 
-### TL;DR Generate and download your configuration [here](https://broncbotz3481.github.io/YAGSL-Example/) and unzip it so that it follows structure below:
+   Eğer projenizi çevrimdışı bir ortamda kullanmayı planlıyorsanız, tüm gerekli kütüphanelerin önceden indirilmiş olduğundan emin olmak için projenizi en az bir kez internet bağlantısı varken derlemeniz önerilir. Bu sayede, çevrimdışı ortamlarda da projenizi sorunsuz bir şekilde derleyebilirsiniz.
 
-```text
-deploy
-└── swerve
-    ├── controllerproperties.json
-    ├── modules
-    │   ├── backleft.json
-    │   ├── backright.json
-    │   ├── frontleft.json
-    │   ├── frontright.json
-    │   ├── physicalproperties.json
-    │   └── pidfproperties.json
-    └── swervedrive.json
-```
+3. **NFR Swerve Konfigürasyonlarının Entegrasyonu**
 
-### Then create your SwerveDrive object like this.
+   - Projede yer alan `nfr-swerve/src/main/deploy/swerve` ve `nfr_navx` klasörleri altındaki konfigürasyon dosyalarını bulun.
+   - Bu dosyalar, swerve modüllerinin motor ayarları, PID parametreleri gibi önceden tanımlanmış ayarları içermektedir.
+   - `physicalproperties` dosyası içerisinde ise motorlar için `rampRate`, `currentLimit` ve diğer fiziksel parametreler bulunmaktadır.
 
-```java
-import java.io.File;
-import edu.wpi.first.wpilibj.Filesystem;
-import swervelib.parser.SwerveParser;
-import swervelib.SwerveDrive;
-import edu.wpi.first.math.util.Units;
+4. **Kendi Robotunuza Uygun Hale Getirme**
 
+   - Kendi robotunuza uygun ayarlamaları yapmak için [YAGSL Tuning Webpage](https://broncbotz3481.github.io/YAGSL-Example/) adresindeki adımları izleyebilirsiniz. Örneğin, navX'i pigeon sensörüyle değiştirme gibi işlemler için bu kaynağı kullanabilirsiniz.
 
-SwerveDrive swerveDrive=new SwerveParser(new File(Filesystem.getDeployDirectory(),"swerve")).createSwerveDrive(Units.feetToMeters(14.5));
-```
+5. **Test ve Kalibrasyon**
 
-# Migrating Old Configuration Files
+   - Ayarları yükledikten sonra robotunuzu test edin ve gerekirse konfigürasyonlarda ince ayar yapın.
+   - Testlerinizi FRC test alanında veya simülasyon ortamında gerçekleştirebilirsiniz.
+   - Diğer gerekli adımlar ve offset ayarları hakkında bilgi almak için [YAGSL Configuration Guide](https://yagsl.gitbook.io/yagsl/configuring-yagsl/configuration#json-files) adresine göz atabilirsiniz.
 
-1. Delete `wheelDiamter`, `gearRatio`, `encoderPulsePerRotation` from `physicalproperties.json`
-2. Add `optimalVoltage` to `physicalproperties.json`
-3. Delete `maxSpeed` and `optimalVoltage` from `swervedrive.json`
-4. **IF** a swerve module doesn't have the same drive motor or steering motor as the rest of the
-   swerve drive you **MUST** specify a `conversionFactor` for BOTH the drive and steering motor in
-   the modules configuration JSON file. IF one of the motors is the same as the rest of the swerve
-   drive and you want to use that `conversionFactor`, set the `conversionFactor` in the module JSON
-   configuration to 0.
-5. You MUST specify the maximum speed when creating a `SwerveDrive`
-   through `new SwerveParser(directory).createSwerveDrive(maximumSpeed);`
-6. IF you do not want to set `conversionFactor` in `swervedrive.json`. You can pass it into the
-   constructor as a parameter like this
+## Önemli Parametreler
 
-```java
-double DriveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(WHEEL_DIAMETER), GEAR_RATIO, ENCODER_RESOLUTION);
-double SteeringConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(GEAR_RATIO, ENCODER_RESOLUTION);
-SwerveDrive swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, SteeringConversionFactor, DriveConversionFactor);
-```
+- **Motor IDs:** Motor kimliklerinin her biri, kontrol ünitenizdeki benzersiz kimlik numaralarına uygun olmalıdır.
+- **PID Ayarları:** Motor kontrolü için PID değerlerini, robotunuzun dinamiklerine uygun şekilde optimize etmeniz gerekebilir.
+- **Inverted Ayarları:**
+  - **`drive`** (Sürüş Motoru): Bizim konfigürasyonlarımızda sürüş motoru için `inverted` değeri `false` olarak ayarlıdır. Bu, motorun varsayılan yönde çalışacağını gösterir.
+  - **`angle`** (Açısal Motor): Açısal motor için `inverted` değeri `true` olarak ayarlanmıştır. Bu, açısal motorun dönüş yönünün tersine çalışacağını belirtir. Bu ayar, açısal kontrolün doğru şekilde yapılmasını sağlar.
+- **Ramp Rate (Ramp Hızı):**
+  - **`drive`** (Sürüş Motoru): Sürüş motoru için `rampRate` değeri `0.25` olarak ayarlanmıştır. Bu, motor hızının ne kadar hızlı değişeceğini belirler ve ani hız değişikliklerini önleyerek robotun daha kontrollü bir şekilde ivmelenmesini sağlar.
+  - **`angle`** (Açısal Motor): Açısal motor için `rampRate` değeri `0.25` olarak ayarlanmıştır. Bu, açısal motorun hızının ne kadar hızlı değişeceğini kontrol eder ve daha hassas bir dönüş sağlar.
+- **Current Limit (Akım Limiti):**
+  - **`drive`** (Sürüş Motoru): Sürüş motoru için `currentLimit` değeri `40` amper olarak ayarlanmıştır. Bu, motorun çekeceği maksimum akımı sınırlar ve motorun aşırı ısınmasını veya zarar görmesini önler.
+  - **`angle`** (Açısal Motor): Açısal motor için `currentLimit` değeri `20` amper olarak ayarlanmıştır. Bu, açısal motorun güvenli bir şekilde çalışmasını sağlar.
 
-### Falcon Support would not have been possible without support from Team 1466 Webb Robotics!
+## Konfigürasyon İpuçları
 
-# Configuration Tips
+- **Robotunuz otonom sırasında veya başlık ayarlamaya çalışırken kontrolsüz bir şekilde dönüyor:**
+  - Jiroskopu tersine çevirin.
+  - Her modül için sürüş motorlarını ters çevirin (Eğer robot dönerken ön ve arka yer değiştiriyorsa).
+- **Robotunuz ağırsa:**
+  - SwerveMath içinde momentum hız sınırlamalarını uygulayın.
+  - IMU'nun robotun merkezinde olduğundan emin olun.
 
-### My Robot Spins around uncontrollably during autonomous or when attempting to set the heading!
+## Lisans
 
-* Invert the gyro scope.
-* Invert the drive motors for every module. (If front and back become reversed when turning)
+Bu repository, Apache-2.0 lisansı altında lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasını kontrol edin.
 
-### Angle motors are erratic.
-
-* Invert the angle motor.
-
-### My robot is heavy.
-
-* Implement momentum velocity limitations in SwerveMath.
-
-### Ensure the IMU is centered on the robot
-
-# Maintainers
-- @thenetworkgrinch
-- @Technologyman00 
-
-# Special Thanks to Team 7900! Trial N' Terror
-Without the debugging and aid of Team 7900 the project could never be as stable or active as it is. 
